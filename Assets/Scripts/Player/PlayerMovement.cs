@@ -32,12 +32,13 @@ public class PlayerMovement : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Koin"))
+        if (other.CompareTag("Coin"))
         {
             GameManager gameManager = FindAnyObjectByType<GameManager>();
             if (gameManager != null)
             {
                 gameManager.AmbilKoin();
+                
             }
             Destroy(other.gameObject);
         }
