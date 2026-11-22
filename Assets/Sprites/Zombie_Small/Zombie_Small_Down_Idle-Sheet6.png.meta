@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -118,10 +118,10 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 78
+        width: 13
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -134,11 +134,121 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: Zombie_Small_Down_Idle-Sheet6_1
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 0
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: acfa157bd3860064ba4b28a80eff4c7b
+      internalID: -935031912
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zombie_Small_Down_Idle-Sheet6_2
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 0
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: abbb7ec91e4399f4ca927d6def96d6df
+      internalID: -260381215
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zombie_Small_Down_Idle-Sheet6_3
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 0
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a1e168e207f22b546a3c282bdb7694e1
+      internalID: -761486639
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zombie_Small_Down_Idle-Sheet6_4
+      rect:
+        serializedVersion: 2
+        x: 52
+        y: 0
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a157e077b60a55b4fbe0a7852b5e2cef
+      internalID: -1484256096
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Zombie_Small_Down_Idle-Sheet6_5
+      rect:
+        serializedVersion: 2
+        x: 65
+        y: 0
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2b7bed979d7a2c54db14c1ed0836c836
+      internalID: -1438236798
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 20ea183034c1a514a903653b437194d8
     internalID: 0
     vertices: []
     indices: 
@@ -149,6 +259,11 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       Zombie_Small_Down_Idle-Sheet6_0: 2718042585114440658
+      Zombie_Small_Down_Idle-Sheet6_1: -935031912
+      Zombie_Small_Down_Idle-Sheet6_2: -260381215
+      Zombie_Small_Down_Idle-Sheet6_3: -761486639
+      Zombie_Small_Down_Idle-Sheet6_4: -1484256096
+      Zombie_Small_Down_Idle-Sheet6_5: -1438236798
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

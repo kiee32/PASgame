@@ -13,7 +13,10 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float JarakSerang = 1.5f;
     [SerializeField] private float JedaSerang = 1f;
 
-  
+    [Header("Sentuhan")]
+    [SerializeField] private int damageSentuh = 1;
+    private bool sudahMengenai = false;
+
     private StateZombie state = StateZombie.IDLE;
     private float waktuSerangTerakhir;
 
@@ -29,8 +32,8 @@ public class Enemy : MonoBehaviour
     void Update()
     {
         PeriksaTransisi();
-        
-        switch(state)
+
+        switch (state)
         {
             case StateZombie.IDLE: PerilakuIdle(); break;
             case StateZombie.PATROL: PerilakuPatrol(); break;
@@ -39,9 +42,36 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    // ===== Sentuhan player =====
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        TabrakPlayer(collision.gameObject);
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        TabrakPlayer(other.gameObject);
+    }
+
+    void TabrakPlayer(GameObject objek)
+    {
+        if (sudahMengenai) return;
+        if (!objek.CompareTag("Player")) return;
+
+        IDamageable target = objek.GetComponentInParent<IDamageable>();
+        if (target == null) return;
+
+        sudahMengenai = true;
+        target.KenaDamage(damageSentuh);
+        Destroy(gameObject);
+    }
+
+    // ===== Gerak =====
+
     public float JarakKePlayer()
     {
-        if (player == null) return Mathf.Infinity   ;
+        if (player == null) return Mathf.Infinity;
         return Vector2.Distance(transform.position, player.position);
     }
 
@@ -60,7 +90,7 @@ public class Enemy : MonoBehaviour
         else
         {
             state = StateZombie.PATROL;
-        }  
+        }
     }
 
     public void Kejar()
@@ -97,6 +127,8 @@ public class Enemy : MonoBehaviour
 
     void PerilakuAttack()
     {
+        // Terus mengejar sampai benar-benar menyentuh player
+        Kejar();
         Debug.Log("Enemy sedang ATTACK");
     }
 }
