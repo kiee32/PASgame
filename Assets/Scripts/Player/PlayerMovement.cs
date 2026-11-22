@@ -3,44 +3,57 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float kecepatan = 5f;
-    private Vector2 arahGerak;
-    private Rigidbody2D rb;
+    // Harus sama dengan Threshold di Blend Tree Move dan Idle
+    private const float BlendDown = 0f;
+    private const float BlendLeft = 1f / 3f;
+    private const float BlendRight = 2f / 3f;
+    private const float BlendUp = 1f;
 
-    InputAction moveAction;
-    
+    private float speed = 5f;
+    private Rigidbody2D rb;
+    private Animator anim;
+    private Vector2 direct;
+
+    public int score = 0;
+    public GameManager gameManager;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        moveAction = InputSystem.actions.FindAction("Move");
-    }
-    
-    void Update()
-    {
-        Move();
+        anim = GetComponentInChildren<Animator>();
     }
 
-    void Move()
+    void OnMove(InputValue value)
     {
-        if (moveAction != null)
-        {
-            Vector2 moveValue = moveAction.ReadValue<Vector2>();
-            arahGerak = moveValue.normalized;
-            rb.linearVelocity = arahGerak * kecepatan;
-        }
+        direct = value.Get<Vector2>();
+    }
+
+    void Update()
+    {
+        rb.linearVelocity = direct * speed;
+
+        bool isWalking = direct.sqrMagnitude > 0.01f;
+        anim.SetBool("IsWalking", isWalking);
+
+        if (!isWalking) return;
+
+        float blend;
+        if (Mathf.Abs(direct.x) > Mathf.Abs(direct.y))
+            blend = direct.x > 0 ? BlendRight : BlendLeft;
+        else
+            blend = direct.y > 0 ? BlendUp : BlendDown;
+
+        anim.SetFloat("Blend", blend);
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Coin"))
         {
-            GameManager gameManager = FindAnyObjectByType<GameManager>();
-            if (gameManager != null)
-            {
-                gameManager.AmbilKoin();
-                
-            }
             Destroy(other.gameObject);
+            score++;
+            Debug.Log("Score: " + score);
+            gameManager.AmbilKoin();
         }
     }
 }

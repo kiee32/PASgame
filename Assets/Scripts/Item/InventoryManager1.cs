@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class InventoryManager : MonoBehaviour, GrabableItem
+public class InventoryManager : MonoBehaviour, IGrabable
 {
     InputAction inventoryAction;
     [SerializeField] private GameObject InventoryCanvas;
@@ -18,14 +18,15 @@ public class InventoryManager : MonoBehaviour, GrabableItem
         {
             InventoryCanvas.SetActive(false);
         }
-        
-        // Menangani input action dengan aman
+
         var actionAsset = InputSystem.actions;
         if (actionAsset != null)
         {
             inventoryAction = actionAsset.FindAction("Inventory");
+            if (inventoryAction == null)
+                Debug.LogWarning("Action 'Inventory' tidak ditemukan di InputSystem_Actions, inventory tidak bisa dibuka.", this);
         }
-        
+
         InventoryActive = false;
     }
 
@@ -38,26 +39,31 @@ public class InventoryManager : MonoBehaviour, GrabableItem
             if (InventoryActive)
             {
                 Time.timeScale = 0f;
-                Debug.Log("Inventory is active");
                 InventoryCanvas.SetActive(true);
                 ShowFirstItem();
             }
             else
             {
                 Time.timeScale = 1f;
-                Debug.Log("Inventory is deactivated");
                 InventoryCanvas.SetActive(false);
             }
         }
     }
 
-    // Build the slot objects at runtime so no manual wiring is needed in the scene
+    // Slot dibuat saat runtime dari prefab Resources/ItemSlot
     private void CreateSlots()
     {
+        if (InventoryCanvas == null)
+        {
+            Debug.LogError("InventoryCanvas belum diisi di Inspector.", this);
+            itemSlot = new ItemSlot[0];
+            return;
+        }
+
         ItemSlot slotPrefab = Resources.Load<ItemSlot>("ItemSlot");
         if (slotPrefab == null)
         {
-            Debug.LogError("ItemSlot prefab was not found in a Resources folder.", this);
+            Debug.LogError("Prefab 'ItemSlot' tidak ditemukan di folder Resources.", this);
             itemSlot = new ItemSlot[0];
             return;
         }
@@ -73,57 +79,46 @@ public class InventoryManager : MonoBehaviour, GrabableItem
         for (int i = 0; i < itemSlot.Length; i++)
         {
             itemSlot[i] = Instantiate(slotPrefab, parent);
-            
-            // PENTING: Mengambil komponen tombol pada slot yang baru di-instantiate 
-            // agar otomatis terhubung ke fungsi SelectedSlot ketika diklik.
-            ItemSlot currentSlot = itemSlot[i];
-            Button slotButton = currentSlot.GetComponent<Button>();
-            if (slotButton != null)
-            {
-                slotButton.onClick.AddListener(() => SelectedSlot(currentSlot));
-            }
+            itemSlot[i].Setup(this);
         }
     }
 
+    // Implementasi IGrabable
     public void AddItem(ItemDetails item)
     {
+        if (item == null || itemSlot == null) return;
+
         Debug.Log("Item added to inventory: " + item.ItemName + " Quantity: " + item.Quantity);
 
-        // Cek stack item yang sama terlebih dahulu
+        // Tumpuk ke slot yang isinya sama dulu
         for (int i = 0; i < itemSlot.Length; i++)
         {
-            if (itemSlot[i].isFull && itemSlot[i].CanStackWith(item.ItemName))
-            {
-                itemSlot[i].AddQuantity(item.Quantity);
-                return;
-            }
-        }
-        
-        // Masukkan ke slot kosong berikutnya
-        for (int i = 0; i < itemSlot.Length; i++)
-        {
-            if (!itemSlot[i].isFull)
+            if (itemSlot[i].CanStackWith(item.ItemName))
             {
                 itemSlot[i].AddItem(item);
                 return;
             }
         }
 
-        Debug.LogWarning("Inventory is full, '" + item.ItemName + "' was lost.");
+        // Kalau tidak ada, pakai slot kosong pertama
+        for (int i = 0; i < itemSlot.Length; i++)
+        {
+            if (itemSlot[i].IsEmpty)
+            {
+                itemSlot[i].AddItem(item);
+                return;
+            }
+        }
+
+        Debug.LogWarning("Inventory penuh, '" + item.ItemName + "' tidak masuk.");
     }
-   
+
     public void SelectedSlot(ItemSlot slot)
     {
-        // Jangan lakukan apa-apa jika slot kosong
-        if (slot.IsEmpty) return;
+        if (slot == null || slot.IsEmpty) return;
 
         DesselectAllSlot();
-
-        if (slot.selectedPanel != null)
-        {
-            slot.selectedPanel.SetActive(true);
-        }
-        slot.isItemSelected = true;
+        slot.SetSelected(true);
 
         if (detailsPanel != null)
         {
@@ -145,7 +140,7 @@ public class InventoryManager : MonoBehaviour, GrabableItem
             }
         }
 
-        // No items yet: leave the panel empty
+        DesselectAllSlot();
         if (detailsPanel != null)
         {
             detailsPanel.Clear();
@@ -154,13 +149,11 @@ public class InventoryManager : MonoBehaviour, GrabableItem
 
     public void DesselectAllSlot()
     {
+        if (itemSlot == null) return;
+
         foreach (ItemSlot slot in itemSlot)
         {
-            slot.isItemSelected = false;
-            if (slot.selectedPanel != null)
-            {
-                slot.selectedPanel.SetActive(false);
-            }
+            slot.SetSelected(false);
         }
     }
 }

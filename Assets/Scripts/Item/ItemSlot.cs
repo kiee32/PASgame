@@ -11,6 +11,7 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
     public bool isFull;
 
     public ItemDetails ItemDetails => itemDetails;
+    public bool IsEmpty => !isFull;
 
     [SerializeField] private int maxStackSize = 99;
     [SerializeField] private TMP_Text quantityText;
@@ -33,6 +34,7 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
         return isFull && itemName == otherItemName && itemQuantity < maxStackSize;
     }
 
+    // Menambah item: kalau sama dengan isi slot, jumlahnya ditumpuk
     public void AddItem(ItemDetails item)
     {
         if (CanStackWith(item.ItemName))
@@ -49,6 +51,11 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
             isFull = true;
         }
 
+        RefreshVisual();
+    }
+
+    void RefreshVisual()
+    {
         if (quantityText != null)
         {
             quantityText.text = itemQuantity.ToString();
@@ -63,8 +70,8 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (!isFull || inventory == null) return;
-        inventory.SelectSlot(this);
+        if (IsEmpty || inventory == null) return;
+        inventory.SelectedSlot(this);
     }
 
     public void SetSelected(bool selected)
