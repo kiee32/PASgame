@@ -1,16 +1,15 @@
 using UnityEngine;
 
-// Data satu jenis item. Buat lewat: klik kanan di Project > Create > Inventory > Item Details
-[CreateAssetMenu(fileName = "NewItem", menuName = "Inventory/Item Details")]
+[CreateAssetMenu(fileName = "ItemDetails", menuName = "Scriptable Objects/ItemDetails")]
 public class ItemDetails : ScriptableObject
 {
-    [SerializeField] private string itemName = "Item";
+    [SerializeField] private string itemName;
+    [SerializeField, TextArea(2, 5)] private string description;
     [SerializeField] private int quantity = 1;
     [SerializeField] private Sprite itemIcon;
-    [SerializeField, TextArea] private string description;
 
     public string ItemName => itemName;
+    public string Description => description;
     public int Quantity => quantity;
     public Sprite ItemIcon => itemIcon;
-    public string Description => description;
 }

@@ -2,41 +2,45 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-// Panel detail item di UI inventory (ikon, nama, jumlah, deskripsi)
-public class ItemDetailPanel : MonoBehaviour
+public class ItemDetailsPanel : MonoBehaviour
 {
-    [SerializeField] private Image iconImage;
-    [SerializeField] private TMP_Text nameText;
-    [SerializeField] private TMP_Text quantityText;
-    [SerializeField] private TMP_Text descriptionText;
+    [SerializeField] private TMP_Text itemNameText;
+    [SerializeField] private TMP_Text itemDescriptionText;
+    [SerializeField] private Image itemIconImage;
+    [SerializeField] private TMP_Text itemQuantityText;
 
-    public void Show(ItemDetails item, int quantity)
+    // Tampilkan detail dari slot yang dipilih
+    public void Show(ItemSlot slot)
     {
-        if (item == null)
+        if (slot == null || slot.IsEmpty)
         {
-            Clear();
+            Hide();
             return;
         }
 
-        if (iconImage != null)
+        gameObject.SetActive(true);
+
+        if (itemNameText != null)
+            itemNameText.text = slot.itemName;
+
+        if (itemDescriptionText != null)
+            itemDescriptionText.text = string.IsNullOrEmpty(slot.itemDescription)
+                ? "Tidak ada deskripsi."
+                : slot.itemDescription;
+
+        if (itemQuantityText != null)
+            itemQuantityText.text = slot.itemQuantity.ToString();
+
+        if (itemIconImage != null)
         {
-            iconImage.sprite = item.ItemIcon;
-            iconImage.enabled = item.ItemIcon != null;
+            itemIconImage.sprite = slot.itemIcon;
+            itemIconImage.preserveAspect = true;
+            itemIconImage.enabled = slot.itemIcon != null;
         }
-        if (nameText != null) nameText.text = item.ItemName;
-        if (quantityText != null) quantityText.text = "x" + quantity;
-        if (descriptionText != null) descriptionText.text = item.Description;
     }
 
-    public void Clear()
+    public void Hide()
     {
-        if (iconImage != null)
-        {
-            iconImage.sprite = null;
-            iconImage.enabled = false;
-        }
-        if (nameText != null) nameText.text = "";
-        if (quantityText != null) quantityText.text = "";
-        if (descriptionText != null) descriptionText.text = "";
+        gameObject.SetActive(false);
     }
 }

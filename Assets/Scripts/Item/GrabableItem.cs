@@ -1,4 +1,5 @@
-public interface IGrabable
+public interface GrabableItem
 {
-    void AddItem(ItemDetails itemdetails);
+  
+    bool AddItem(ItemDetails itemDetails);
 }

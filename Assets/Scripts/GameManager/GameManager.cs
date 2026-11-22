@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        totalKoin = GameObject.FindGameObjectsWithTag("Koin").Length;
+        totalKoin = GameObject.FindGameObjectsWithTag("Coin").Length;
     }
 
     void SaatZombieMati(Enemy zombie)

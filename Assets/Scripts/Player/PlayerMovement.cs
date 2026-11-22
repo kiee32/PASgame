@@ -9,7 +9,7 @@ public class PlayerMovement : MonoBehaviour
     private const float BlendRight = 2f / 3f;
     private const float BlendUp = 1f;
 
-    private float speed = 5f;
+    [SerializeField] private float speed = 5f;
     private Rigidbody2D rb;
     private Animator anim;
     private Vector2 direct;
@@ -21,8 +21,11 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponentInChildren<Animator>();
+        if (gameManager == null)
+            gameManager = FindAnyObjectByType<GameManager>();
     }
 
+    // Dipanggil PlayerInput (Behavior: Send Messages) untuk action "Move"
     void OnMove(InputValue value)
     {
         direct = value.Get<Vector2>();
@@ -30,12 +33,14 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        rb.linearVelocity = direct * speed;
+        if (rb != null)
+            rb.linearVelocity = direct * speed;
 
         bool isWalking = direct.sqrMagnitude > 0.01f;
-        anim.SetBool("IsWalking", isWalking);
+        if (anim != null)
+            anim.SetBool("IsWalking", isWalking);
 
-        if (!isWalking) return;
+        if (!isWalking || anim == null) return;
 
         float blend;
         if (Mathf.Abs(direct.x) > Mathf.Abs(direct.y))
@@ -53,7 +58,8 @@ public class PlayerMovement : MonoBehaviour
             Destroy(other.gameObject);
             score++;
             Debug.Log("Score: " + score);
-            gameManager.AmbilKoin();
+            if (gameManager != null)
+                gameManager.AmbilKoin();
         }
     }
 }

@@ -1,82 +1,159 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class ItemSlot : MonoBehaviour, IPointerClickHandler
 {
+    // Item Data
     public string itemName;
+    public string itemDescription;
     public int itemQuantity;
     public Sprite itemIcon;
-    public bool isFull;
+    public bool isFull;   // true kalau stack sudah mencapai maksimum
 
-    public ItemDetails ItemDetails => itemDetails;
-    public bool IsEmpty => !isFull;
-
-    [SerializeField] private int maxStackSize = 99;
+    // Item Slot
     [SerializeField] private TMP_Text quantityText;
     [SerializeField] private Image itemImage;
-    [SerializeField] private GameObject selectedPanel;
+    [SerializeField] private int maxStackSize = 99;
 
-    private ItemDetails itemDetails;
-    private InventoryManager inventory;
+    // Selected Item
+    [SerializeField] public GameObject selectedPanel;
+    public bool isItemSelected;
 
-    public void Setup(InventoryManager owner)
+    public InventoryManager inventoryManager;
+
+    public bool IsEmpty => string.IsNullOrEmpty(itemName);
+    public int MaxStackSize => maxStackSize;
+
+    // Sisa tempat di slot ini (slot kosong = muat satu stack penuh)
+    public int FreeSpace => IsEmpty ? maxStackSize : Mathf.Max(0, maxStackSize - itemQuantity);
+
+    void Awake()
     {
-        inventory = owner;
-        SetSelected(false);
-        if (quantityText != null) quantityText.enabled = false;
-        if (itemImage != null) itemImage.enabled = false;
+        // Slot selalu mulai kosong, walau prefab menyimpan nilai lama
+        Clear();
+        Deselect();
+    }
+
+    void Start()
+    {
+        if (inventoryManager == null)
+            inventoryManager = FindAnyObjectByType<InventoryManager>();
     }
 
     public bool CanStackWith(string otherItemName)
     {
-        return isFull && itemName == otherItemName && itemQuantity < maxStackSize;
+        return !IsEmpty && !isFull && itemName == otherItemName;
     }
 
-    // Menambah item: kalau sama dengan isi slot, jumlahnya ditumpuk
-    public void AddItem(ItemDetails item)
+    public int AddItem(ItemDetails item, int amount)
     {
-        if (CanStackWith(item.ItemName))
+        if (IsEmpty)
         {
-            itemQuantity += item.Quantity;
-            if (itemQuantity > maxStackSize) itemQuantity = maxStackSize;
-        }
-        else
-        {
-            itemDetails = item;
             itemName = item.ItemName;
-            itemQuantity = item.Quantity;
+            itemDescription = item.Description;
             itemIcon = item.ItemIcon;
-            isFull = true;
+            itemQuantity = 0;
         }
-
-        RefreshVisual();
+        return AddQuantity(amount);
     }
 
-    void RefreshVisual()
+    public int AddQuantity(int amount)
+    {
+        int added = Mathf.Clamp(amount, 0, maxStackSize - itemQuantity);
+        itemQuantity += added;
+        isFull = itemQuantity >= maxStackSize;
+        RefreshUI();
+        return amount - added;
+    }
+
+    public void RemoveQuantity(int amount)
+    {
+        itemQuantity -= amount;
+        if (itemQuantity <= 0)
+        {
+            Clear();
+            return;
+        }
+        isFull = itemQuantity >= maxStackSize;
+        RefreshUI();
+    }
+
+    public void Clear()
+    {
+        itemName = "";
+        itemDescription = "";
+        itemQuantity = 0;
+        itemIcon = null;
+        isFull = false;
+        RefreshUI();
+    }
+
+    public void Select()
+    {
+        isItemSelected = true;
+        if (selectedPanel != null) selectedPanel.SetActive(true);
+    }
+
+    public void Deselect()
+    {
+        isItemSelected = false;
+        if (selectedPanel != null) selectedPanel.SetActive(false);
+    }
+
+    private void RefreshUI()
     {
         if (quantityText != null)
         {
-            quantityText.text = itemQuantity.ToString();
-            quantityText.enabled = true;
+            quantityText.text = IsEmpty ? "" : itemQuantity.ToString();
+            quantityText.enabled = !IsEmpty;
         }
+
         if (itemImage != null)
         {
             itemImage.sprite = itemIcon;
-            itemImage.enabled = true;
+            itemImage.preserveAspect = true;
+            itemImage.enabled = !IsEmpty && itemIcon != null;
         }
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (IsEmpty || inventory == null) return;
-        inventory.SelectedSlot(this);
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            LeftClick();
+        }
+
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            RightClick();
+        }
     }
 
-    public void SetSelected(bool selected)
+    // Klik kiri: pilih slot dan tampilkan detail item
+    private void LeftClick()
     {
-        if (selectedPanel != null)
-            selectedPanel.SetActive(selected);
+        if (inventoryManager == null)
+            inventoryManager = FindAnyObjectByType<InventoryManager>();
+
+        // Hapus pilihan sebelumnya (sekaligus menyembunyikan panel detail)
+        if (inventoryManager != null) inventoryManager.DesselectAllSlot();
+
+        if (IsEmpty) return;   // slot kosong tidak bisa dipilih
+
+        Debug.Log("Left Clicked on " + itemName);
+        Select();
+        if (inventoryManager != null) inventoryManager.ShowDetails(this);
+    }
+
+    // Klik kanan: buang 1 item dari stack
+    private void RightClick()
+    {
+        if (IsEmpty) return;
+
+        Debug.Log("Right Clicked on " + itemName + " (buang 1)");
+        RemoveQuantity(1);
+        if (inventoryManager != null) inventoryManager.OnSlotChanged(this);
     }
 }
